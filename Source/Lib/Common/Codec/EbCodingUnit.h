@@ -163,6 +163,28 @@ extern "C" {
         int32_t col;
     } MV32;
 
+#define INVALID_MV 0x80008000
+#define GET_MV_RAWPEL(x) (((x) + 3 + ((x) >= 0)) >> 3)
+#define GET_MV_SUBPEL(x) ((x)*8)
+
+    // The motion vector in units of full pixel
+    typedef struct fullpel_mv {
+      int16_t row;
+      int16_t col;
+    } FULLPEL_MV;
+
+    static AOM_INLINE FULLPEL_MV get_fullmv_from_mv(const MV *subpel_mv) {
+      const FULLPEL_MV full_mv = { (int16_t)GET_MV_RAWPEL(subpel_mv->row),
+                                   (int16_t)GET_MV_RAWPEL(subpel_mv->col) };
+      return full_mv;
+    }
+
+    static AOM_INLINE MV get_mv_from_fullmv(const FULLPEL_MV *full_mv) {
+      const MV subpel_mv = { (int16_t)GET_MV_SUBPEL(full_mv->row),
+                             (int16_t)GET_MV_SUBPEL(full_mv->col) };
+      return subpel_mv;
+    }
+
     typedef struct CandidateMv
     {
         IntMv this_mv;

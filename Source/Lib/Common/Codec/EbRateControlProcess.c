@@ -4806,16 +4806,18 @@ void* rate_control_kernel(void *input_ptr)
 #if TWO_PASS
             if (sequence_control_set_ptr->static_config.enable_adaptive_quantization == 2 && picture_control_set_ptr->parent_pcs_ptr->frames_in_sw >= QPS_SW_THRESH &&
                 !picture_control_set_ptr->parent_pcs_ptr->sc_content_detected && !sequence_control_set_ptr->use_output_stat_file)
-                if(sequence_control_set_ptr->use_input_stat_file && picture_control_set_ptr->parent_pcs_ptr->referenced_area_has_non_zero)
-                    sb_qp_derivation_two_pass(picture_control_set_ptr);
 //#if 0
 #if CUTREE_LA
-                else if (sequence_control_set_ptr->static_config.look_ahead_distance != 0 &&
-                         sequence_control_set_ptr->static_config.enable_cutree_in_la &&
-                         picture_control_set_ptr->parent_pcs_ptr->r0 != 0)
+                if (sequence_control_set_ptr->use_input_stat_file &&
+                    sequence_control_set_ptr->static_config.look_ahead_distance != 0 &&
+                    sequence_control_set_ptr->static_config.enable_cutree_in_la &&
+                    picture_control_set_ptr->parent_pcs_ptr->r0 != 0)
                     // Content adaptive qp assignment
                     sb_qp_derivation_tpl_la(picture_control_set_ptr);
+                else
 #endif
+                if(sequence_control_set_ptr->use_input_stat_file && picture_control_set_ptr->parent_pcs_ptr->referenced_area_has_non_zero)
+                    sb_qp_derivation_two_pass(picture_control_set_ptr);
                 else
                     sb_qp_derivation(picture_control_set_ptr);
             else {
