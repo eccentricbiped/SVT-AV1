@@ -636,6 +636,9 @@ extern "C" {
         int16_t                         delta_qp;
         int16_t                         org_delta_qp;
 #endif
+#if CUTREE_LA
+        int32_t                         rdmult;
+#endif
         uint32_t                        total_bits;
 
         // Quantized Coefficients

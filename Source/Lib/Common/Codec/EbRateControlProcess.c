@@ -3842,6 +3842,30 @@ int av1_get_deltaq_offset(AomBitDepth bit_depth, int qindex, double beta) {
     return qindex - orig_qindex;
 }
 
+int av1_get_adaptive_rdmult(AomBitDepth bit_depth, int base_qindex, double beta) {
+  assert(beta > 0.0);
+  int64_t q = eb_av1_dc_quant_QTX(base_qindex, 0, bit_depth);
+  int64_t rdmult = 0;
+
+  switch (bit_depth) {
+    case AOM_BITS_8: rdmult = (int)((88 * q * q / beta) / 24); break;
+    case AOM_BITS_10:
+      rdmult = ROUND_POWER_OF_TWO((int)((88 * q * q / beta) / 24), 4);
+      break;
+    default:
+      assert(bit_depth == AOM_BITS_12);
+      rdmult = ROUND_POWER_OF_TWO((int)((88 * q * q / beta) / 24), 8);
+      break;
+  }
+
+  return (int)rdmult;
+}
+
+static const int rd_boost_factor[16] = { 64, 32, 32, 32, 24, 16, 12, 12,
+                                         8,  8,  4,  4,  2,  2,  1,  0 };
+static const int rd_frame_type_factor[FRAME_UPDATE_TYPES] = { 128, 144, 128, 128, 144,
+                                                              128, 128, 128, //0, 0, 0,
+                                                              144, 128, };
 /******************************************************
  * adaptive_qindex_calc_tpl_la
  * assigns the q_index per frame using average reference area per frame.
@@ -4233,6 +4257,7 @@ static void sb_qp_derivation_two_pass(
  * used in the second pass of two pass encoding
  ******************************************************/
 static void sb_qp_derivation_tpl_la(
+    RATE_CONTROL              *rc,
     PictureControlSet         *picture_control_set_ptr) {
 
     PictureParentControlSet   *pcs_ptr = picture_control_set_ptr->parent_pcs_ptr;
@@ -4242,6 +4267,9 @@ static void sb_qp_derivation_tpl_la(
     uint32_t picture_width_in_mb  = (sequence_control_set_ptr->seq_header.max_frame_width  + 16 - 1) / 16;
     uint32_t picture_height_in_mb = (sequence_control_set_ptr->seq_header.max_frame_height + 16 - 1) / 16;
     const double r0 = pcs_ptr->r0;
+    int update_type = (frame_is_intra_only(picture_control_set_ptr->parent_pcs_ptr)) ? KF_UPDATE :
+        (picture_control_set_ptr->parent_pcs_ptr->temporal_layer_index == 0) ? ARF_UPDATE :
+        picture_control_set_ptr->parent_pcs_ptr->is_used_as_reference_flag ? INTNL_ARF_UPDATE : LF_UPDATE;
 
     picture_control_set_ptr->parent_pcs_ptr->average_qp = 0;
     if (picture_control_set_ptr->temporal_layer_index <= 0)
@@ -4373,7 +4401,27 @@ static void sb_qp_derivation_tpl_la(
                 sequence_control_set_ptr->static_config.max_qp_allowed,
                 sb_ptr->qp);
             sb_ptr->delta_qp = (int)picture_control_set_ptr->parent_pcs_ptr->picture_qp - (int)sb_ptr->qp;
+
             picture_control_set_ptr->parent_pcs_ptr->average_qp += sb_ptr->qp;
+
+            int qp_index = quantizer_to_qindex[sb_ptr->qp];//picture_control_set_ptr->parent_pcs_ptr->frm_hdr.delta_q_params.delta_q_present ? (uint8_t)quantizer_to_qindex[sb_qp] : (uint8_t)picture_control_set_ptr->parent_pcs_ptr->frm_hdr.quantization_params.base_q_idx;
+            if(qp_index<0 || qp_index>255)
+                printf("kelvininrc ---> poc%d, sb_index%d, sb_qp=%d, update_type=%d, gfu_boost=%d, qp_index=%d\n", picture_control_set_ptr->picture_number, sb_addr, sb_ptr->qp, update_type, rc->gfu_boost, qp_index);
+            int rdmult = av1_get_adaptive_rdmult(sequence_control_set_ptr->static_config.encoder_bit_depth, qp_index, beta);
+            //if(picture_control_set_ptr->picture_number == 56)
+            //    printf("kelvinrc ---> poc%d, sb_index%d, sb_qp=%d, rdmult=%d, update_type=%d, gfu_boost=%d\n", picture_control_set_ptr->picture_number, sb_addr, sb_ptr->qp, rdmult, update_type, rc->gfu_boost);
+#if 0
+            if (picture_control_set_ptr->slice_type != I_SLICE) {
+              const int boost_index = AOMMIN(15, (rc->gfu_boost / 100));
+
+              rdmult = (rdmult * rd_frame_type_factor[update_type]) >> 7;
+              //if(picture_control_set_ptr->picture_number == 16)
+              //    printf("kelvinrc ---> poc%d, sb_index%d, sb_qp=%d, rdmult=%d, update_type=%d, gfu_boost=%d, boost_index=%d\n", picture_control_set_ptr->picture_number, sb_addr, sb_ptr->qp, rdmult, update_type, rc->gfu_boost, boost_index);
+              rdmult += ((rdmult * rd_boost_factor[boost_index]) >> 7);
+            }
+#endif
+            if (rdmult < 1) rdmult = 1;
+            picture_control_set_ptr->sb_ptr_array[sb_addr]->rdmult = rdmult;
         }
     }
     else {
@@ -4804,6 +4852,8 @@ void* rate_control_kernel(void *input_ptr)
                 }
             }
 #if TWO_PASS
+            //if(picture_control_set_ptr->picture_number == 56)
+            //    printf("kelvinrc ---> poc56 r0=%f, frames_in_sw=%d\n", picture_control_set_ptr->parent_pcs_ptr->r0, picture_control_set_ptr->parent_pcs_ptr->frames_in_sw);
             if (sequence_control_set_ptr->static_config.enable_adaptive_quantization == 2 && picture_control_set_ptr->parent_pcs_ptr->frames_in_sw >= QPS_SW_THRESH &&
                 !picture_control_set_ptr->parent_pcs_ptr->sc_content_detected && !sequence_control_set_ptr->use_output_stat_file)
 //#if 0
@@ -4813,7 +4863,7 @@ void* rate_control_kernel(void *input_ptr)
                     sequence_control_set_ptr->static_config.enable_cutree_in_la &&
                     picture_control_set_ptr->parent_pcs_ptr->r0 != 0)
                     // Content adaptive qp assignment
-                    sb_qp_derivation_tpl_la(picture_control_set_ptr);
+                    sb_qp_derivation_tpl_la(&rc, picture_control_set_ptr);
                 else
 #endif
                 if(sequence_control_set_ptr->use_input_stat_file && picture_control_set_ptr->parent_pcs_ptr->referenced_area_has_non_zero)

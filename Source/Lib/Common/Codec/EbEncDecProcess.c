@@ -2711,6 +2711,28 @@ void* enc_dec_kernel(void *input_ptr)
                         context_ptr->md_context,
                         picture_control_set_ptr,
                         (uint8_t)sb_ptr->qp);
+                    {
+                        if(picture_control_set_ptr->parent_pcs_ptr->frm_hdr.delta_q_params.delta_q_present &&
+                           picture_control_set_ptr->sb_ptr_array[sb_index]->rdmult > 0 &&
+                           picture_control_set_ptr->temporal_layer_index == 0 &&
+                           //picture_control_set_ptr->picture_number == 0 && //sb_index == 0 &&
+                           picture_control_set_ptr->picture_number != 56 &&
+                           sequence_control_set_ptr->use_input_stat_file &&
+                           sequence_control_set_ptr->static_config.look_ahead_distance != 0 &&
+                           sequence_control_set_ptr->static_config.enable_cutree_in_la)
+                        {
+                            //if (picture_control_set_ptr->sb_ptr_array[sb_index]->rdmult == 0) {
+                            //    printf("kelvinencdec ---> rdmult==0 poc%d, sb_index%d, full_lambda=%d, delta_q_present%d, sb_qp=%d\n", picture_control_set_ptr->picture_number, sb_index, context_ptr->md_context->full_lambda, picture_control_set_ptr->parent_pcs_ptr->frm_hdr.delta_q_params.delta_q_present, sb_ptr->qp);
+                            //    picture_control_set_ptr->sb_ptr_array[sb_index]->rdmult = context_ptr->md_context->full_lambda;
+                            //}
+                            context_ptr->md_context->full_lambda = picture_control_set_ptr->sb_ptr_array[sb_index]->rdmult;
+                            //double temp = sqrt((double) context_ptr->md_context->full_lambda);
+                            // if(context_ptr->md_context->fast_lambda != temp)
+                            //    printf("kelvin encdec ---> poc%d, sb_index%d, full_lambda=%d, fast_lambda=%d, temp=%f, sb_qp=%d\n", picture_control_set_ptr->picture_number, sb_index, context_ptr->md_context->full_lambda, context_ptr->md_context->fast_lambda, temp, sb_ptr->qp);
+                            //if(context_ptr->md_context->full_lambda != picture_control_set_ptr->sb_ptr_array[sb_index]->rdmult)
+                            //    printf("kelvin encdec ---> poc%d, sb_index%d, full_lambda=%d, rdmult=%d, delta_q_present%d, sb_qp=%d\n", picture_control_set_ptr->picture_number, sb_index, context_ptr->md_context->full_lambda, picture_control_set_ptr->sb_ptr_array[sb_index]->rdmult, picture_control_set_ptr->parent_pcs_ptr->frm_hdr.delta_q_params.delta_q_present, sb_ptr->qp);
+                        }
+                    }
 
                     uint32_t lcuRow;
                     if (picture_control_set_ptr->parent_pcs_ptr->enable_in_loop_motion_estimation_flag) {
