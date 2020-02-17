@@ -926,21 +926,25 @@ EbErrorType signal_derivation_multi_processes_oq(
     //TODO: we can force all frames in GOP with the same detection status of leading I frame.
     if (pcs_ptr->slice_type == I_SLICE) {
         frm_hdr->allow_screen_content_tools = pcs_ptr->sc_content_detected;
-        if (pcs_ptr->enc_mode <= ENC_M5)
-            frm_hdr->allow_intrabc =  pcs_ptr->sc_content_detected;
-        else
-            frm_hdr->allow_intrabc =  0;
-
-        //IBC Modes:   0:Slow   1:Fast   2:Faster
-        if (pcs_ptr->enc_mode <= ENC_M5)
-            pcs_ptr->ibc_mode = 0;
-        else
-            pcs_ptr->ibc_mode = 1;
+        if (scs_ptr->static_config.intrabc_mode == DEFAULT) {
+            //IBC Modes:   0: OFF 1:Slow   2:Faster   3:Fastest
+            if (pcs_ptr->enc_mode <= ENC_M5) {
+                frm_hdr->allow_intrabc =  pcs_ptr->sc_content_detected;
+                pcs_ptr->ibc_mode = 1; // Slow
+            } else {
+                frm_hdr->allow_intrabc =  0;
+                pcs_ptr->ibc_mode = 2; // Faster
+            }
+        } else {
+            frm_hdr->allow_intrabc =  (uint8_t)(scs_ptr->static_config.intrabc_mode > 0);
+            pcs_ptr->ibc_mode = (uint8_t)scs_ptr->static_config.intrabc_mode;
+        }
     }
     else {
         //this will enable sc tools for P frames. hence change Bitstream even if palette mode is OFF
         frm_hdr->allow_screen_content_tools = pcs_ptr->sc_content_detected;
         frm_hdr->allow_intrabc = 0;
+        pcs_ptr->ibc_mode = 0; // OFF
     }
 
    /*Palette Modes:
@@ -979,6 +983,7 @@ EbErrorType signal_derivation_multi_processes_oq(
     }
     else
         pcs_ptr->loop_filter_mode = 0;
+
     // CDEF Level                                   Settings
     // 0                                            OFF
     // 1                                            1 step refinement
