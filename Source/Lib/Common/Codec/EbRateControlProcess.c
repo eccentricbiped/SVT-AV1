@@ -4404,7 +4404,9 @@ static void sb_qp_derivation_tpl_la(
 
             picture_control_set_ptr->parent_pcs_ptr->average_qp += sb_ptr->qp;
 
-            int qp_index = quantizer_to_qindex[sb_ptr->qp];//picture_control_set_ptr->parent_pcs_ptr->frm_hdr.delta_q_params.delta_q_present ? (uint8_t)quantizer_to_qindex[sb_qp] : (uint8_t)picture_control_set_ptr->parent_pcs_ptr->frm_hdr.quantization_params.base_q_idx;
+            //int qp_index = quantizer_to_qindex[sb_ptr->qp];
+            int qp_index = quantizer_to_qindex[(int)picture_control_set_ptr->parent_pcs_ptr->picture_qp];
+            //picture_control_set_ptr->parent_pcs_ptr->frm_hdr.delta_q_params.delta_q_present ? (uint8_t)quantizer_to_qindex[sb_qp] : (uint8_t)picture_control_set_ptr->parent_pcs_ptr->frm_hdr.quantization_params.base_q_idx;
             if(qp_index<0 || qp_index>255)
                 printf("kelvininrc ---> poc%d, sb_index%d, sb_qp=%d, update_type=%d, gfu_boost=%d, qp_index=%d\n", picture_control_set_ptr->picture_number, sb_addr, sb_ptr->qp, update_type, rc->gfu_boost, qp_index);
             int rdmult = av1_get_adaptive_rdmult(sequence_control_set_ptr->static_config.encoder_bit_depth, qp_index, beta);
