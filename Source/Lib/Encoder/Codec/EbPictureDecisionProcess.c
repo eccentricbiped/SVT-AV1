@@ -1039,8 +1039,7 @@ EbErrorType signal_derivation_multi_processes_oq(
     // 3                                            8 step refinement
     // 4                                            16 step refinement
     // 5                                            64 step refinement
-    if (scs_ptr->seq_header.enable_cdef &&
-        frm_hdr->allow_intrabc == 0) {
+    if (scs_ptr->seq_header.enable_cdef && frm_hdr->allow_intrabc == 0) {
         if (pcs_ptr->enc_mode <= ENC_M7)
             pcs_ptr->cdef_filter_mode = 5;
         else

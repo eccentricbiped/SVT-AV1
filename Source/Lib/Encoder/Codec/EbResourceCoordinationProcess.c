@@ -185,9 +185,17 @@ EbErrorType signal_derivation_pre_analysis_oq(SequenceControlSet *     scs_ptr,
     } else
         scs_ptr->seq_header.enable_restoration =
             (uint8_t)scs_ptr->static_config.enable_restoration_filtering;
+
+    if (scs_ptr->static_config.cdef_mode == DEFAULT)
+        scs_ptr->seq_header.enable_cdef = 1;
+    else
+        scs_ptr->seq_header.enable_cdef = (uint8_t)(scs_ptr->static_config.cdef_mode>0);
+
 #if SHUT_FILTERING
     scs_ptr->seq_header.enable_restoration = 0;
+    scs_ptr->seq_header.enable_cdef = 0;
 #endif
+
     scs_ptr->cdf_mode = (pcs_ptr->enc_mode <= ENC_M6) ? 0 : 1;
     return return_error;
 }
