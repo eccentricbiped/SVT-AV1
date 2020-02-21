@@ -387,6 +387,7 @@ typedef struct ModeDecisionContext {
     uint8_t      md_pic_obmc_mode;
     uint8_t      md_enable_inter_intra;
     uint8_t      md_filter_intra_mode;
+    uint8_t      md_intra_angle_delta;
     uint8_t      md_max_ref_count;
     EbBool       md_skip_mvp_generation;
     int16_t      pred_me_full_pel_search_width;

@@ -66,6 +66,7 @@
 #define RESTORATION_ENABLE_TOKEN "-restoration-filtering"
 #define CLASS_12_TOKEN "-class-12"
 #define EDGE_SKIP_ANGLE_INTRA_TOKEN "-intra-edge-skp"
+#define INTRA_ANGLE_DELTA_TOKEN "-intra-angle-delta"
 #define INTER_INTRA_COMPOUND_TOKEN "-interintra-comp"
 #define MFMV_ENABLE_TOKEN "-mfmv"
 #define REDUNDANT_BLK_TOKEN "-redundant-blk"
@@ -316,6 +317,9 @@ static void set_class_12_flag(const char *value, EbConfig *cfg) {
 };
 static void set_edge_skip_angle_intra_flag(const char *value, EbConfig *cfg) {
     cfg->edge_skp_angle_intra = strtol(value, NULL, 0);
+};
+static void set_intra_angle_delta_flag(const char *value, EbConfig *cfg) {
+    cfg->intra_angle_delta = strtol(value, NULL, 0);
 };
 static void set_interintra_compound_flag(const char *value, EbConfig *cfg) {
     cfg->inter_intra_compound = strtol(value, NULL, 0);
@@ -831,6 +835,11 @@ ConfigEntry config_entry_specific[] = {
      EDGE_SKIP_ANGLE_INTRA_TOKEN,
      "Enable intra edge filtering (0: OFF, 1: ON (default))",
      set_edge_skip_angle_intra_flag},
+    // INTRA ANGLE DELTA
+    {SINGLE_INPUT,
+        INTRA_ANGLE_DELTA_TOKEN,
+        "Enable intra angle delta filtering filtering (0: OFF, 1: ON (default))",
+        set_intra_angle_delta_flag},
     // INTER INTRA COMPOUND
     {SINGLE_INPUT,
      INTER_INTRA_COMPOUND_TOKEN,
@@ -1095,6 +1104,12 @@ ConfigEntry config_entry[] = {
      EDGE_SKIP_ANGLE_INTRA_TOKEN,
      "EdgeSkipAngleIntra",
      set_edge_skip_angle_intra_flag},
+    // INTRA ANGLE DELTA
+    {SINGLE_INPUT,
+        INTRA_ANGLE_DELTA_TOKEN,
+        "IntraAngleDelta",
+        set_intra_angle_delta_flag},
+
     // INTER INTRA COMPOUND
     {SINGLE_INPUT, INTER_INTRA_COMPOUND_TOKEN, "InterIntraCompound", set_interintra_compound_flag},
     // OBMC
@@ -1243,6 +1258,7 @@ void eb_config_ctor(EbConfig *config_ptr) {
     config_ptr->enable_restoration_filtering              = DEFAULT;
     config_ptr->combine_class_12                          = DEFAULT;
     config_ptr->edge_skp_angle_intra                      = DEFAULT;
+    config_ptr->intra_angle_delta                         = DEFAULT;
     config_ptr->inter_intra_compound                      = DEFAULT;
     config_ptr->enable_mfmv                               = DEFAULT;
     config_ptr->enable_redundant_blk                      = DEFAULT;

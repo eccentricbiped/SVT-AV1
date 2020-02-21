@@ -2077,10 +2077,6 @@ void copy_api_from_app(
 
     //combine class 12
     scs_ptr->static_config.combine_class_12             = ((EbSvtAv1EncConfiguration*)config_struct)->combine_class_12;
-    // edge skip angle intra
-    scs_ptr->static_config.edge_skp_angle_intra         = ((EbSvtAv1EncConfiguration*)config_struct)->edge_skp_angle_intra;
-    // inter intra compoound
-    scs_ptr->static_config.inter_intra_compound         = ((EbSvtAv1EncConfiguration*)config_struct)->inter_intra_compound;
     // motion field motion vector
     scs_ptr->static_config.enable_mfmv                  = ((EbSvtAv1EncConfiguration*)config_struct)->enable_mfmv;
     // redundant block
@@ -2095,6 +2091,12 @@ void copy_api_from_app(
     scs_ptr->static_config.new_nearest_comb_inject      = ((EbSvtAv1EncConfiguration*)config_struct)->new_nearest_comb_inject;
     // prune unipred at me
     scs_ptr->static_config.prune_unipred_me             = ((EbSvtAv1EncConfiguration*)config_struct)->prune_unipred_me;
+    // edge skip angle intra
+    scs_ptr->static_config.edge_skp_angle_intra         = ((EbSvtAv1EncConfiguration*)config_struct)->edge_skp_angle_intra;
+    // intra angle delta
+    scs_ptr->static_config.intra_angle_delta            = ((EbSvtAv1EncConfiguration*)config_struct)->intra_angle_delta;
+    // inter intra compoound
+    scs_ptr->static_config.inter_intra_compound         = ((EbSvtAv1EncConfiguration*)config_struct)->inter_intra_compound;
     //prune ref frame for rec partitions
     scs_ptr->static_config.prune_ref_rec_part           = ((EbSvtAv1EncConfiguration*)config_struct)->prune_ref_rec_part;
     // NSQ table
@@ -2713,6 +2715,11 @@ static EbErrorType verify_settings(
       return_error = EB_ErrorBadParameter;
     }
 
+    if (config->intra_angle_delta != 0 && config->intra_angle_delta != 1 && config->intra_angle_delta != -1) {
+        SVT_LOG("Error instance %u: Invalid Enable intra angle delta flag [0/1 or -1 for auto], your input: %d\n", channel_number + 1, config->intra_angle_delta);
+        return_error = EB_ErrorBadParameter;
+    }
+
     if (config->inter_intra_compound != 0 && config->inter_intra_compound != 1 && config->inter_intra_compound != -1) {
       SVT_LOG("Error instance %u: Invalid Inter Intra Compound flag [0/1 or -1 for auto], your input: %d\n", channel_number + 1, config->inter_intra_compound);
       return_error = EB_ErrorBadParameter;
@@ -2894,6 +2901,7 @@ EbErrorType eb_svt_enc_init_parameter(
     config_ptr->cdef_mode = DEFAULT;
     config_ptr->enable_restoration_filtering = DEFAULT;
     config_ptr->edge_skp_angle_intra = DEFAULT;
+    config_ptr->intra_angle_delta = DEFAULT;
     config_ptr->combine_class_12 = DEFAULT;
     config_ptr->inter_intra_compound = DEFAULT;
     config_ptr->enable_mfmv = DEFAULT;
