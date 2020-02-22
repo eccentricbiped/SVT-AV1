@@ -206,6 +206,8 @@ The encoder parameters present in the `Sample.cfg` file are listed in this table
 | **IntraEdgeFilter** | -intra-edge-filter | [0/1, -1 for default] | -1 | Enable intra edge filter (0: OFF, 1: ON, -1: DEFAULT)|
 | **IntraAngleDelta** | -intra-angle-delta | [0/1, -1 for default] | -1 | Enable intra angle delta filtering (0: OFF, 1: ON, -1 = DEFAULT |
 | **InterIntraCompound** | -interintra-comp | [0/1, -1 for default] | -1 | Enable inter intra compound, 0 = OFF, 1 = ON, -1 = DEFAULT|
+| **Paeth** | -paeth | [0/1, -1 for default] | -1 | Enable Paeth, 0 = OFF, 1 = ON, -1 = DEFAULT|
+| **Smooth** | -smooth | [0/1, -1 for default] | -1 | Enable Smooth, 0 = OFF, 1 = ON, -1 = DEFAULT|
 | **Obmc** | -obmc | [0-1, 1 for default] | 1 | Enable OBMC(0: OFF, 1: ON[default]) |
 | **RDOQ** | -rdoq | [0/1, -1 for default] | -1 | Enable RDOQ, 0 = OFF, 1 = ON, -1 = DEFAULT |
 | **FilterIntra** | -filter-intra | [0-1, 1 for default] | 1 | Enable filter intra prediction mode (0: OFF, 1: ON [default]) |
