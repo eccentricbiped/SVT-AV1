@@ -202,6 +202,12 @@ EbErrorType signal_derivation_pre_analysis_oq(SequenceControlSet *     scs_ptr,
 #endif
 
     scs_ptr->cdf_mode = (pcs_ptr->enc_mode <= ENC_M6) ? 0 : 1;
+
+    if (scs_ptr->static_config.enable_warped_motion == DEFAULT) {
+        scs_ptr->seq_header.enable_warped_motion = 1;
+    } else
+        scs_ptr->seq_header.enable_warped_motion = (uint8_t)scs_ptr->static_config.enable_warped_motion;
+
     return return_error;
 }
 

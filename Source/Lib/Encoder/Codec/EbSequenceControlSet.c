@@ -163,6 +163,11 @@ EbErrorType eb_sequence_control_set_ctor(SequenceControlSet *scs_ptr, EbPtr obje
     else
         scs_ptr->seq_header.enable_intra_edge_filter = (uint8_t)scs_ptr->static_config.enable_intra_edge_filter;
 
+    if (scs_ptr->static_config.enable_warped_motion == DEFAULT)
+        scs_ptr->seq_header.enable_warped_motion = 1;
+    else
+        scs_ptr->seq_header.enable_warped_motion = (uint8_t)scs_ptr->static_config.enable_warped_motion;
+
     scs_ptr->film_grain_random_seed = 7391;
     scs_ptr->reference_count        = 4;
 

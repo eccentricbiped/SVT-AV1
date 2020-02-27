@@ -118,7 +118,7 @@ EbErrorType copy_configuration_parameters(EbConfig *config, EbAppContext *callba
     callback_data->eb_enc_parameters.output_stat_file     = config->output_stat_file;
     callback_data->eb_enc_parameters.stat_report          = (EbBool)config->stat_report;
     callback_data->eb_enc_parameters.disable_dlf_flag     = (EbBool)config->disable_dlf_flag;
-    callback_data->eb_enc_parameters.enable_warped_motion = (EbBool)config->enable_warped_motion;
+    callback_data->eb_enc_parameters.enable_warped_motion = config->enable_warped_motion;
     callback_data->eb_enc_parameters.enable_global_motion = (EbBool)config->enable_global_motion;
     callback_data->eb_enc_parameters.cdef_mode                = config->cdef_mode;
     callback_data->eb_enc_parameters.enable_restoration_filtering = config->enable_restoration_filtering;

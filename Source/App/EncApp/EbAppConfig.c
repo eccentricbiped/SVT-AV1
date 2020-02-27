@@ -305,7 +305,7 @@ static void set_disable_dlf_flag(const char *value, EbConfig *cfg) {
     cfg->disable_dlf_flag = (EbBool)strtoul(value, NULL, 0);
 };
 static void set_enable_local_warped_motion_flag(const char *value, EbConfig *cfg) {
-    cfg->enable_warped_motion = (EbBool)strtoul(value, NULL, 0);
+    cfg->enable_warped_motion = strtol(value, NULL, 0);
 };
 static void set_enable_global_motion_flag(const char *value, EbConfig *cfg) {
     cfg->enable_global_motion = (EbBool)strtoul(value, NULL, 0);
@@ -849,7 +849,7 @@ ConfigEntry config_entry_specific[] = {
     // LOCAL WARPED MOTION
     {SINGLE_INPUT,
      LOCAL_WARPED_ENABLE_TOKEN,
-     "Enable local warped motion (0: OFF, 1: ON [default])",
+     "Enable local warped motion (0: OFF, 1: ON, -1: DEFAULT)",
      set_enable_local_warped_motion_flag},
     // GLOBAL MOTION
     {SINGLE_INPUT,
@@ -1141,9 +1141,7 @@ ConfigEntry config_entry[] = {
 
     // LOCAL WARPED MOTION
     {SINGLE_INPUT,
-     LOCAL_WARPED_ENABLE_TOKEN,
-     "LocalWarpedMotion",
-     set_enable_local_warped_motion_flag},
+     LOCAL_WARPED_ENABLE_TOKEN, "LocalWarpedMotion", set_enable_local_warped_motion_flag},
     // GLOBAL MOTION
     {SINGLE_INPUT, GLOBAL_MOTION_ENABLE_TOKEN, "GlobalMotion", set_enable_global_motion_flag},
 
@@ -1312,6 +1310,7 @@ void eb_config_ctor(EbConfig *config_ptr) {
     config_ptr->hierarchical_levels                       = 4;
     config_ptr->pred_structure                            = 2;
     config_ptr->enable_global_motion                      = EB_TRUE;
+    config_ptr->enable_warped_motion                      = DEFAULT;
     config_ptr->cdef_mode                                 = DEFAULT;
     config_ptr->enable_restoration_filtering              = DEFAULT;
     config_ptr->sg_filter_mode                            = DEFAULT;
