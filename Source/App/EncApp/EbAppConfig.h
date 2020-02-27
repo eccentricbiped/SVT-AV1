@@ -216,7 +216,7 @@ typedef struct EbConfig {
     /****************************************
      * Local Warped Motion
      ****************************************/
-    EbBool enable_warped_motion;
+    int enable_warped_motion;
 
     /****************************************
      * Global Motion

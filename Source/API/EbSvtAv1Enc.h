@@ -232,8 +232,8 @@ typedef struct EbSvtAv1EncConfiguration {
 
     /* Warped motion
     *
-    * Default is 0. */
-    EbBool enable_warped_motion;
+    * Default is -1. */
+    int enable_warped_motion;
 
     /* Global motion
     *

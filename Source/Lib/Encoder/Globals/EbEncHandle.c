@@ -2064,7 +2064,7 @@ void copy_api_from_app(
     scs_ptr->static_config.disable_dlf_flag = ((EbSvtAv1EncConfiguration*)config_struct)->disable_dlf_flag;
 
     // Local Warped Motion
-    scs_ptr->static_config.enable_warped_motion = EB_TRUE;
+    scs_ptr->static_config.enable_warped_motion = ((EbSvtAv1EncConfiguration*)config_struct)->enable_warped_motion;
 
     // Global motion
     scs_ptr->static_config.enable_global_motion = ((EbSvtAv1EncConfiguration*)config_struct)->enable_global_motion;
@@ -2642,8 +2642,8 @@ static EbErrorType verify_settings(
     }
 
     // Local Warped Motion
-    if (config->enable_warped_motion != 0 && config->enable_warped_motion != 1) {
-      SVT_LOG("Error instance %u: Invalid warped motion flag [0 - 1], your input: %d\n", channel_number + 1, config->enable_warped_motion);
+    if (config->enable_warped_motion != 0 && config->enable_warped_motion != 1 && config->enable_warped_motion != -1) {
+      SVT_LOG("Error instance %u: Invalid warped motion flag [0/1, -1], your input: %d\n", channel_number + 1, config->enable_warped_motion);
       return_error = EB_ErrorBadParameter;
     }
 
@@ -2939,7 +2939,7 @@ EbErrorType eb_svt_enc_init_parameter(
     config_ptr->hierarchical_levels = 4;
     config_ptr->pred_structure = EB_PRED_RANDOM_ACCESS;
     config_ptr->disable_dlf_flag = EB_FALSE;
-    config_ptr->enable_warped_motion = EB_TRUE;
+    config_ptr->enable_warped_motion = DEFAULT;
     config_ptr->enable_global_motion = EB_TRUE;
     config_ptr->cdef_mode = DEFAULT;
     config_ptr->enable_restoration_filtering = DEFAULT;
