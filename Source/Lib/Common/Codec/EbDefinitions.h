@@ -34,6 +34,9 @@
 extern "C" {
 #endif
 
+#define CLEANUP_INTER_INTRA  1  //shutting inter intra could be done via 2 ways.at the seq level(in ress coord), or at the pic level (in pic decision)
+#define MRP_CTRL             1  //add control to inject smaller number of references.
+
 #define CHROMA_SEARCH_OPT        1 // Move chroma search to be done on the best intra candidate survived from MD stage 2
 #if CHROMA_SEARCH_OPT
 #define INFR_OPT                 1 // Lossless: Infrastructure work to allow the protability of the chroma search
